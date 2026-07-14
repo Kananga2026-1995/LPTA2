@@ -1,10 +1,10 @@
 const CLE_LOCAL_STORAGE = 'utilisateurs_demo';
 
 const utilisateursParDefaut = [
-  { id: 1, nom: 'Alice Kabangu', email: 'alice@example.com' },
-  { id: 2, nom: 'Faby Ndjoko', email: 'faby@example.com' },
+  { id: 1, nom: 'Alice Katshabala', email: 'alice@example.com' },
+  { id: 2, nom: 'Faby Lado', email: 'faby@example.com' },
   { id: 3, nom: 'Charlie Tatukila', email: 'charlie@example.com' },
-  { id: 4, nom: 'Diana Pongo', email: 'diana@example.com' },
+  { id: 4, nom: 'Kevin Mbuyi', email: 'kevin@example.com' },
   { id: 5, nom: 'Syria Tatukila', email: 'syria@example.com' },
 ];
 
