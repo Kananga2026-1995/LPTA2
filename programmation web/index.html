@@ -1,1 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Recherche par nom des etudiants</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body onload="initialiserApplication()">
+  <main>
+    <h1>Liste des utilisateurs</h1>
+
+    <p>Tapez un nom ou un email pour filtrer la liste.</p>
+
+    <label for="champRecherche">Recherche</label>
+    <input
+      id="champRecherche"
+      type="search"
+      placeholder="Exemple : Alice ou alice@example.com ..."
+      autocomplete="off"
+    />
+
+    <p id="compteurResultats">5 utilisateurs trouvés</p>
+
+    <h2>Ajouter ou modifier un utilisateur</h2>
+    <form id="formUtilisateur">
+      <label for="champNom">Nom</label>
+      <input id="champNom" type="text" placeholder="Exemple : Jean Kasende" required />
+
+      <label for="champEmail">Email</label>
+      <input id="champEmail" type="email" placeholder="Exemple : jean@example.com" required />
+
+      <button type="submit" id="boutonEnregistrer">Ajouter</button>
+      <button type="button" id="boutonAnnuler" hidden>Annuler la modification</button>
+      <button type="button" id="boutonReinitialiser">Réinitialiser LocalStorage</button>
+    </form>
+
+    <table aria-live="polite">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="listeUtilisateurs"></tbody>
+    </table>
+  </main>
+
+  <!-- Pas de bibliothèque externe : seulement JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
 
