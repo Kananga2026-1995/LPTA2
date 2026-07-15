@@ -1,52 +1,62 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <title>Recherche par nom des etudiants</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestionnaire de tâches</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body onload="initialiserApplication()">
   <main>
-    <h1>Liste des utilisateurs</h1>
+    <h1>Gestionnaire de tâches</h1>
+    <p>Ajoutez, suivez et organisez vos tâches facilement.</p>
 
-    <p>Tapez un nom ou un email pour filtrer la liste.</p>
+    <section aria-labelledby="titreFormulaire">
+      <h2 id="titreFormulaire">Ajouter une tâche</h2>
+      <form id="formTache">
+        <label for="champTitre">Titre</label>
+        <input
+          id="champTitre"
+          type="text"
+          placeholder="Exemple : Finaliser le rapport"
+          required
+        />
 
-    <label for="champRecherche">Recherche</label>
-    <input
-      id="champRecherche"
-      type="search"
-      placeholder="Exemple : Alice ou alice@example.com ..."
-      autocomplete="off"
-    />
+        <label for="champDescription">Description</label>
+        <textarea
+          id="champDescription"
+          rows="4"
+          placeholder="Décrivez brièvement la tâche"
+          required
+        ></textarea>
 
-    <p id="compteurResultats">5 utilisateurs trouvés</p>
+        <label for="champPriorite">Priorité</label>
+        <select id="champPriorite" required>
+          <option value="Basse">Basse</option>
+          <option value="Moyenne" selected>Moyenne</option>
+          <option value="Haute">Haute</option>
+        </select>
 
-    <h2>Ajouter ou modifier un utilisateur</h2>
-    <form id="formUtilisateur">
-      <label for="champNom">Nom</label>
-      <input id="champNom" type="text" placeholder="Exemple : Jean Kasende" required />
+        <button type="submit" id="boutonAjouter">Ajouter la tâche</button>
+      </form>
+    </section>
 
-      <label for="champEmail">Email</label>
-      <input id="champEmail" type="email" placeholder="Exemple : jean@example.com" required />
+    <section aria-labelledby="titreFiltres">
+      <h2 id="titreFiltres">Filtrer les tâches</h2>
+      <div class="zone-filtres" role="group" aria-label="Filtres de tâches">
+        <button type="button" class="bouton-filtre actif" data-filtre="toutes">Toutes</button>
+        <button type="button" class="bouton-filtre" data-filtre="en-cours">En cours</button>
+        <button type="button" class="bouton-filtre" data-filtre="completees">Complétées</button>
+      </div>
+      <p id="compteurResultats">0 tâche</p>
+    </section>
 
-      <button type="submit" id="boutonEnregistrer">Ajouter</button>
-      <button type="button" id="boutonAnnuler" hidden>Annuler la modification</button>
-      <button type="button" id="boutonReinitialiser">Réinitialiser LocalStorage</button>
-    </form>
-
-    <table aria-live="polite">
-      <thead>
-        <tr>
-          <th>Nom</th>
-          <th>Email</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="listeUtilisateurs"></tbody>
-    </table>
+    <section aria-live="polite" aria-labelledby="titreListe">
+      <h2 id="titreListe">Liste des tâches</h2>
+      <div id="listeTaches" class="grille-taches"></div>
+    </section>
   </main>
 
-  <!-- Pas de bibliothèque externe : seulement JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
-
