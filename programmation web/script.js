@@ -1,212 +1,122 @@
-const CLE_LOCAL_STORAGE = 'utilisateurs_demo';
+const CLE_LOCAL_STORAGE = 'taches_lpta2';
 
-const utilisateursParDefaut = [
-  { id: 1, nom: 'Alice Katshabala', email: 'alice@example.com' },
-  { id: 2, nom: 'Faby Lado', email: 'faby@example.com' },
-  { id: 3, nom: 'Charlie Tatukila', email: 'charlie@example.com' },
-  { id: 4, nom: 'Kevin Mbuyi', email: 'kevin@example.com' },
-  { id: 5, nom: 'Syria Tatukila', email: 'syria@example.com' },
-];
-
-const champRecherche = document.querySelector('#champRecherche');
+const formTache = document.querySelector('#formTache');
+const champTitre = document.querySelector('#champTitre');
+const champDescription = document.querySelector('#champDescription');
+const champPriorite = document.querySelector('#champPriorite');
+const listeTaches = document.querySelector('#listeTaches');
 const compteurResultats = document.querySelector('#compteurResultats');
-const listeUtilisateurs = document.querySelector('#listeUtilisateurs');
-const formUtilisateur = document.querySelector('#formUtilisateur');
-const champNom = document.querySelector('#champNom');
-const champEmail = document.querySelector('#champEmail');
-const boutonEnregistrer = document.querySelector('#boutonEnregistrer');
-const boutonAnnuler = document.querySelector('#boutonAnnuler');
-const boutonReinitialiser = document.querySelector('#boutonReinitialiser');
+const boutonsFiltre = document.querySelectorAll('.bouton-filtre');
 
-let utilisateurs = chargerUtilisateurs();
-let idEnEdition = null;
+let taches = JSON.parse(localStorage.getItem(CLE_LOCAL_STORAGE) || '[]');
+let filtreActif = 'toutes';
 
-function chargerUtilisateurs() {
-  const texte = localStorage.getItem(CLE_LOCAL_STORAGE);
+function sauvegarder() {
+  localStorage.setItem(CLE_LOCAL_STORAGE, JSON.stringify(taches));
+}
 
-  if (!texte) {
-    return [...utilisateursParDefaut];
+function classePriorite(priorite) {
+  if (priorite === 'Haute') return 'priorite-haute';
+  if (priorite === 'Moyenne') return 'priorite-moyenne';
+  return 'priorite-basse';
+}
+
+function render() {
+  let listeFiltre = taches;
+
+  if (filtreActif === 'en-cours') {
+    listeFiltre = taches.filter((t) => !t.completee);
   }
 
-  try {
-    return JSON.parse(texte);
-  } catch (erreur) {
-    return [...utilisateursParDefaut];
+  if (filtreActif === 'completees') {
+    listeFiltre = taches.filter((t) => t.completee);
   }
-}
-
-function sauvegarderUtilisateurs() {
-  localStorage.setItem(CLE_LOCAL_STORAGE, JSON.stringify(utilisateurs));
-}
-
-function rechercherUtilisateurs(texteRecherche) {
-  const texte = texteRecherche.toLowerCase().trim();
-
-  if (texte === '') {
-    return utilisateurs;
-  }
-
-  return utilisateurs.filter((utilisateur) => {
-    const nom = utilisateur.nom.toLowerCase();
-    const email = utilisateur.email.toLowerCase();
-    return nom.includes(texte) || email.includes(texte);
-  });
-}
-
-function creerElementUtilisateur(utilisateur) {
-  const ligne = document.createElement('tr');
-  ligne.dataset.id = String(utilisateur.id);
-
-  const celluleNom = document.createElement('td');
-  celluleNom.textContent = utilisateur.nom;
-
-  const celluleEmail = document.createElement('td');
-  celluleEmail.textContent = utilisateur.email;
-
-  const celluleActions = document.createElement('td');
-  celluleActions.innerHTML = `
-    <button type="button" data-action="modifier">Modifier</button>
-    <button type="button" data-action="supprimer">Supprimer</button>
-  `;
-
-  ligne.append(celluleNom, celluleEmail, celluleActions);
-
-  return ligne;
-}
-
-function afficherUtilisateurs() {
-  const resultats = rechercherUtilisateurs(champRecherche.value);
 
   compteurResultats.textContent =
-    resultats.length === 1
-      ? '1 utilisateur trouvé'
-      : `${resultats.length} utilisateurs trouvés`;
+    listeFiltre.length <= 1 ? `${listeFiltre.length} tâche` : `${listeFiltre.length} tâches`;
 
-  listeUtilisateurs.textContent = '';
-
-  if (resultats.length === 0) {
-    const ligneVide = document.createElement('tr');
-    const celluleVide = document.createElement('td');
-    celluleVide.colSpan = 3;
-    celluleVide.textContent = 'Aucun utilisateur trouvé.';
-    ligneVide.appendChild(celluleVide);
-    listeUtilisateurs.appendChild(ligneVide);
+  if (listeFiltre.length === 0) {
+    listeTaches.innerHTML = '<p class="message-vide">Aucune tâche pour ce filtre.</p>';
     return;
   }
 
-  const lignes = resultats.map(creerElementUtilisateur);
-  lignes.forEach((ligne) => listeUtilisateurs.appendChild(ligne));
+  listeTaches.innerHTML = listeFiltre
+    .map(
+      (t) => `
+      <article class="carte-tache ${t.completee ? 'completee' : ''}" data-id="${t.id}">
+        <h3>${t.titre}</h3>
+        <p>${t.description}</p>
+        <div class="meta-tache">
+          <span class="badge-priorite ${classePriorite(t.priorite)}">Priorité : ${t.priorite}</span>
+          <span>${t.completee ? 'État : Complétée' : 'État : En cours'}</span>
+        </div>
+        <div class="actions-tache">
+          <button type="button" data-action="toggle">${t.completee ? 'Remettre en cours' : 'Marquer complétée'}</button>
+          <button type="button" data-action="supprimer">Supprimer</button>
+        </div>
+      </article>
+    `
+    )
+    .join('');
 }
 
-function prochainId() {
-  if (utilisateurs.length === 0) {
-    return 1;
-  }
-
-  const ids = utilisateurs.map((utilisateur) => utilisateur.id);
-  return Math.max(...ids) + 1;
-}
-
-function reinitialiserFormulaire() {
-  idEnEdition = null;
-  boutonEnregistrer.textContent = 'Ajouter';
-  boutonAnnuler.hidden = true;
-  champNom.value = '';
-  champEmail.value = '';
-}
-
-function demarrerEdition(id) {
-  const utilisateur = utilisateurs.find((item) => item.id === id);
-  if (!utilisateur) {
-    return;
-  }
-
-  idEnEdition = id;
-  champNom.value = utilisateur.nom;
-  champEmail.value = utilisateur.email;
-  boutonEnregistrer.textContent = 'Enregistrer la modification';
-  boutonAnnuler.hidden = false;
-}
-
-function supprimerUtilisateur(id) {
-  utilisateurs = utilisateurs.filter((utilisateur) => utilisateur.id !== id);
-  sauvegarderUtilisateurs();
-  afficherUtilisateurs();
-
-  if (idEnEdition === id) {
-    reinitialiserFormulaire();
-  }
-}
-
-function gererSoumissionFormulaire(event) {
+function ajouterTache(event) {
   event.preventDefault();
 
-  const nom = champNom.value.trim();
-  const email = champEmail.value.trim();
+  const titre = champTitre.value.trim();
+  const description = champDescription.value.trim();
+  const priorite = champPriorite.value;
 
-  if (nom === '' || email === '') {
-    return;
-  }
+  if (!titre || !description) return;
 
-  if (idEnEdition === null) {
-    utilisateurs.push({ id: prochainId(), nom, email });
-  } else {
-    utilisateurs = utilisateurs.map((utilisateur) => {
-      if (utilisateur.id === idEnEdition) {
-        return { ...utilisateur, nom, email };
-      }
-      return utilisateur;
-    });
-  }
+  taches.push({
+    id: Date.now(),
+    titre,
+    description,
+    priorite,
+    completee: false,
+  });
 
-  sauvegarderUtilisateurs();
-  reinitialiserFormulaire();
-  afficherUtilisateurs();
+  sauvegarder();
+  formTache.reset();
+  champPriorite.value = 'Moyenne';
+  render();
 }
 
-function gererReinitialisation() {
-  localStorage.removeItem(CLE_LOCAL_STORAGE);
-  utilisateurs = [...utilisateursParDefaut];
-  reinitialiserFormulaire();
-  afficherUtilisateurs();
-}
-
-function gererClicTableau(event) {
+function gererActionsTaches(event) {
   const bouton = event.target.closest('button');
-  if (!bouton) {
-    return;
-  }
+  if (!bouton) return;
 
-  const ligne = bouton.closest('tr');
-  if (!ligne || !ligne.dataset.id) {
-    return;
-  }
+  const carte = bouton.closest('.carte-tache');
+  if (!carte) return;
 
-  const id = Number(ligne.dataset.id);
+  const id = Number(carte.dataset.id);
 
-  if (bouton.dataset.action === 'modifier') {
-    demarrerEdition(id);
+  if (bouton.dataset.action === 'toggle') {
+    taches = taches.map((t) => (t.id === id ? { ...t, completee: !t.completee } : t));
   }
 
   if (bouton.dataset.action === 'supprimer') {
-    supprimerUtilisateur(id);
+    taches = taches.filter((t) => t.id !== id);
   }
+
+  sauvegarder();
+  render();
+}
+
+function gererFiltres(event) {
+  const bouton = event.target.closest('.bouton-filtre');
+  if (!bouton) return;
+
+  filtreActif = bouton.dataset.filtre;
+  boutonsFiltre.forEach((b) => b.classList.toggle('actif', b === bouton));
+  render();
 }
 
 function initialiserApplication() {
-  champRecherche.addEventListener('input', afficherUtilisateurs);
-  formUtilisateur.addEventListener('submit', gererSoumissionFormulaire);
-  boutonAnnuler.addEventListener('click', reinitialiserFormulaire);
-  boutonReinitialiser.addEventListener('click', gererReinitialisation);
-  listeUtilisateurs.addEventListener('click', gererClicTableau);
-
-  sauvegarderUtilisateurs();
-  afficherUtilisateurs();
+  formTache.addEventListener('submit', ajouterTache);
+  listeTaches.addEventListener('click', gererActionsTaches);
+  document.querySelector('.zone-filtres').addEventListener('click', gererFiltres);
+  sauvegarder();
+  render();
 }
-
-
-
-// window.addEventListener('load', initialiserApplication);
-
-
-
